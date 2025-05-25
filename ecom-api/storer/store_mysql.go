@@ -94,7 +94,7 @@ func (ms *MySQLStorer) CreateOrder(ctx context.Context, o *Order) (*Order, error
 }
 
 func createOrder(ctx context.Context, tx *sqlx.Tx, o *Order) (*Order, error) {
-	res, err := tx.NamedExecContext(ctx, "INSERT INTO orders (payment_method, tax_price, shipping_price, total_price, user_id) VALUES (:payment_method, :tax_price, :shipping_price, :total_price, :user_id)", o)
+	res, err := tx.NamedExecContext(ctx, "INSERT INTO orders (payment_method, tax_price, shipping_price, total_price) VALUES (:payment_method, :tax_price, :shipping_price, :total_price)", o)
 	if err != nil {
 		return nil, fmt.Errorf("error inserting order: %w", err)
 	}
@@ -125,7 +125,7 @@ func createOrderItem(ctx context.Context, tx *sqlx.Tx, oi OrderItem) error {
 
 func (ms *MySQLStorer) GetOrder(ctx context.Context, userID int64) (*Order, error) {
 	var o Order
-	err := ms.db.GetContext(ctx, &o, "SELECT * FROM orders WHERE user_id=?", userID)
+	err := ms.db.GetContext(ctx, &o, "SELECT * FROM orders WHERE id=?", userID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting order: %w", err)
 	}
