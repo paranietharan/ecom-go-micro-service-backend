@@ -34,3 +34,18 @@ func NewDatabase() (*Database, error) {
 	utils.LogInfo("Connected to database successfully")
 	return &Database{db: db}, nil
 }
+
+func (d *Database) Close() {
+	if d.db != nil {
+		err := d.db.Close()
+		if err != nil {
+			utils.LogError(err)
+		} else {
+			utils.LogInfo("Database connection closed successfully")
+		}
+	}
+}
+
+func (d *Database) GetDB() *sqlx.DB {
+	return d.db
+}
