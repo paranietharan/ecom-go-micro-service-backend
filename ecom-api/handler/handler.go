@@ -72,7 +72,7 @@ func (h *handler) listProducts(w http.ResponseWriter, r *http.Request) {
 
 	var res []ProductRes
 	for _, p := range products {
-		res = append(res, toProductRes(p))
+		res = append(res, toProductRes(&p))
 	}
 
 	w.Header().Set("Content-Type", "application/json")
