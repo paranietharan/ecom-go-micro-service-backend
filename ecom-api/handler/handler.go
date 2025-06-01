@@ -5,6 +5,7 @@ import (
 	"ecom-go-micro-service-backend/ecom-api/server"
 	"ecom-go-micro-service-backend/ecom-api/storer"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,6 +34,7 @@ func (h *handler) createProduct(w http.ResponseWriter, r *http.Request) {
 
 	product, err := h.server.CreateProduct(h.ctx, toStorerProduct(p))
 	if err != nil {
+		fmt.Println(err)
 		http.Error(w, "error creating product", http.StatusInternalServerError)
 		return
 	}

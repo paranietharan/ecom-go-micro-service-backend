@@ -6,18 +6,12 @@ import (
 	"ecom-go-micro-service-backend/ecom-api/server"
 	"ecom-go-micro-service-backend/ecom-api/storer"
 	"ecom-go-micro-service-backend/env"
-	"ecom-go-micro-service-backend/utils"
 	"fmt"
 	"log"
 )
 
 func main() {
-	err := utils.InitLogger()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = env.LoadEnv()
+	err := env.LoadEnv()
 	if err != nil {
 		log.Fatal(err)
 	}

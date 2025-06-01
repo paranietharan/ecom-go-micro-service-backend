@@ -2,7 +2,6 @@ package db
 
 import (
 	"ecom-go-micro-service-backend/env"
-	"ecom-go-micro-service-backend/utils"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
@@ -25,13 +24,11 @@ func NewDatabase() (*Database, error) {
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUsername, dbPassword, dbHost, dbPort, dbName)
-	utils.LogInfo("Connecting to database with DSN: " + dsn)
 	db, err := sqlx.Connect("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	utils.LogInfo("Connected to database successfully")
 	return &Database{db: db}, nil
 }
 
@@ -39,9 +36,9 @@ func (d *Database) Close() {
 	if d.db != nil {
 		err := d.db.Close()
 		if err != nil {
-			utils.LogError(err)
+			fmt.Println(err)
 		} else {
-			utils.LogInfo("Database connection closed successfully")
+			fmt.Println("Database connection closed successfully")
 		}
 	}
 }
