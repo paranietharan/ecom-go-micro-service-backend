@@ -1,0 +1,6 @@
+APP_LOG: 2025/06/01 15:27:07 log.go:24: [INFO] 2025-06-01T15:27:07+05:30 :: Connecting to database with DSN: root:root@tcp(localhost:3306)/ecom?parseTime=true
+APP_LOG: 2025/06/01 15:27:07 log.go:24: [INFO] 2025-06-01T15:27:07+05:30 :: Connected to database successfully
+APP_LOG: 2025/06/01 15:29:02 log.go:24: [INFO] 2025-06-01T15:29:02+05:30 :: Connecting to database with DSN: root:root@tcp(localhost:3306)/ecom?parseTime=true
+APP_LOG: 2025/06/01 15:29:02 log.go:24: [INFO] 2025-06-01T15:29:02+05:30 :: Connected to database successfully
+APP_LOG: 2025/06/01 15:39:55 log.go:24: [INFO] 2025-06-01T15:39:55+05:30 :: Connecting to database with DSN: root:root@tcp(localhost:3306)/ecom?parseTime=true
+APP_LOG: 2025/06/01 15:39:55 log.go:24: [INFO] 2025-06-01T15:39:55+05:30 :: Connected to database successfully

@@ -12,7 +12,9 @@ type MySQLStorer struct {
 }
 
 func NewMySQLStorer(db *sqlx.DB) *MySQLStorer {
-	return &MySQLStorer{db: db}
+	return &MySQLStorer{
+		db: db,
+	}
 }
 
 func (ms *MySQLStorer) CreateProduct(ctx context.Context, p *Product) (*Product, error) {
@@ -40,8 +42,8 @@ func (ms *MySQLStorer) GetProduct(ctx context.Context, id int64) (*Product, erro
 	return &p, nil
 }
 
-func (ms *MySQLStorer) ListProducts(ctx context.Context) ([]*Product, error) {
-	var products []*Product
+func (ms *MySQLStorer) ListProducts(ctx context.Context) ([]Product, error) {
+	var products []Product
 	err := ms.db.SelectContext(ctx, &products, "SELECT * FROM products")
 	if err != nil {
 		return nil, fmt.Errorf("error listing products: %w", err)
@@ -123,15 +125,15 @@ func createOrderItem(ctx context.Context, tx *sqlx.Tx, oi OrderItem) error {
 	return nil
 }
 
-func (ms *MySQLStorer) GetOrder(ctx context.Context, userID int64) (*Order, error) {
+func (ms *MySQLStorer) GetOrder(ctx context.Context, id int64) (*Order, error) {
 	var o Order
-	err := ms.db.GetContext(ctx, &o, "SELECT * FROM orders WHERE id=?", userID)
+	err := ms.db.GetContext(ctx, &o, "SELECT * FROM orders WHERE id=?", id)
 	if err != nil {
 		return nil, fmt.Errorf("error getting order: %w", err)
 	}
 
 	var items []OrderItem
-	err = ms.db.SelectContext(ctx, &items, "SELECT * FROM order_items WHERE order_id=?", o.ID)
+	err = ms.db.SelectContext(ctx, &items, "SELECT * FROM order_items WHERE order_id=?", id)
 	if err != nil {
 		return nil, fmt.Errorf("error getting order items: %w", err)
 	}
@@ -140,18 +142,8 @@ func (ms *MySQLStorer) GetOrder(ctx context.Context, userID int64) (*Order, erro
 	return &o, nil
 }
 
-func (ms *MySQLStorer) GetOrderStatusByID(ctx context.Context, id int64) (*Order, error) {
-	var o Order
-	err := ms.db.GetContext(ctx, &o, "SELECT id, user_id, status FROM orders WHERE id=?", id)
-	if err != nil {
-		return nil, fmt.Errorf("error getting order: %w", err)
-	}
-
-	return &o, nil
-}
-
-func (ms *MySQLStorer) ListOrders(ctx context.Context) ([]*Order, error) {
-	var orders []*Order
+func (ms *MySQLStorer) ListOrders(ctx context.Context) ([]Order, error) {
+	var orders []Order
 	err := ms.db.SelectContext(ctx, &orders, "SELECT * FROM orders")
 	if err != nil {
 		return nil, fmt.Errorf("error listing orders: %w", err)
@@ -169,14 +161,7 @@ func (ms *MySQLStorer) ListOrders(ctx context.Context) ([]*Order, error) {
 	return orders, nil
 }
 
-func (ms *MySQLStorer) UpdateOrderStatus(ctx context.Context, o *Order) (*Order, error) {
-	_, err := ms.db.NamedExecContext(ctx, "UPDATE orders SET status=:status, updated_at=:updated_at WHERE id=:id", o)
-	if err != nil {
-		return nil, fmt.Errorf("error updating order status: %w", err)
-	}
-
-	return o, nil
-}
+// UpdateOrderStatus
 
 func (ms *MySQLStorer) DeleteOrder(ctx context.Context, id int64) error {
 	err := ms.execTx(ctx, func(tx *sqlx.Tx) error {
@@ -204,10 +189,13 @@ func (ms *MySQLStorer) execTx(ctx context.Context, fn func(*sqlx.Tx) error) erro
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
-	defer tx.Rollback()
 
-	if err := fn(tx); err != nil {
-		return fmt.Errorf("error executing transaction: %w", err)
+	err = fn(tx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("error rolling back transaction: %w", rbErr)
+		}
+		return fmt.Errorf("error in transaction: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {

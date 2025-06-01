@@ -72,7 +72,7 @@ func (h *handler) listProducts(w http.ResponseWriter, r *http.Request) {
 
 	var res []ProductRes
 	for _, p := range products {
-		res = append(res, toProductRes(p))
+		res = append(res, toProductRes(&p))
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -238,7 +238,7 @@ func (h *handler) listOrders(w http.ResponseWriter, r *http.Request) {
 
 	var res []OrderRes
 	for _, o := range orders {
-		res = append(res, toOrderRes(o))
+		res = append(res, toOrderRes(&o))
 	}
 
 	w.Header().Set("Content-Type", "application/json")

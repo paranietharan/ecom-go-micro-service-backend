@@ -82,7 +82,6 @@ func TestCreateProduct(t *testing.T) {
 
 func TestGetProduct(t *testing.T) {
 	p := &Product{
-		ID:           1,
 		Name:         "test product",
 		Image:        "test.jpg",
 		Category:     "test category",
@@ -100,21 +99,27 @@ func TestGetProduct(t *testing.T) {
 		{
 			name: "success",
 			test: func(t *testing.T, st *MySQLStorer, mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT * FROM products WHERE id=?").WillReturnRows(sqlmock.NewRows([]string{"id", "name", "image", "category", "description", "rating", "num_reviews", "price", "count_in_stock"}).AddRow(p.ID, p.Name, p.Image, p.Category, p.Description, p.Rating, p.NumReviews, p.Price, p.CountInStock))
-				cp, err := st.GetProduct(context.Background(), p.ID)
+				rows := sqlmock.NewRows([]string{"id", "name", "image", "category", "description", "rating", "num_reviews", "price", "count_in_stock", "created_at", "updated_at"}).
+					AddRow(1, p.Name, p.Image, p.Category, p.Description, p.Rating, p.NumReviews, p.Price, p.CountInStock, p.CreatedAt, p.UpdatedAt)
+
+				mock.ExpectQuery("SELECT * FROM products WHERE id=?").WithArgs(1).WillReturnRows(rows)
+
+				gp, err := st.GetProduct(context.Background(), 1)
 				require.NoError(t, err)
-				require.Equal(t, p.ID, cp.ID)
+				require.Equal(t, int64(1), gp.ID)
+
 				err = mock.ExpectationsWereMet()
 				require.NoError(t, err)
 			},
 		},
 		{
-			name: "product not found",
+			name: "failed getting product",
 			test: func(t *testing.T, st *MySQLStorer, mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT * FROM products WHERE id=?").WillReturnError(fmt.Errorf("product not found"))
-				cp, err := st.GetProduct(context.Background(), p.ID)
+				mock.ExpectQuery("SELECT * FROM products WHERE id=?").WithArgs(1).WillReturnError(fmt.Errorf("error getting product"))
+
+				_, err := st.GetProduct(context.Background(), 1)
 				require.Error(t, err)
-				require.Nil(t, cp)
+
 				err = mock.ExpectationsWereMet()
 				require.NoError(t, err)
 			},
@@ -292,7 +297,6 @@ func TestDeleteProduct(t *testing.T) {
 	}
 }
 
-// Test cases related to order
 func TestCreateOrder(t *testing.T) {
 	ois := []OrderItem{
 		{
