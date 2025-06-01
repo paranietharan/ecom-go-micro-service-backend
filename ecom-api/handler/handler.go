@@ -238,7 +238,7 @@ func (h *handler) listOrders(w http.ResponseWriter, r *http.Request) {
 
 	var res []OrderRes
 	for _, o := range orders {
-		res = append(res, toOrderRes(o))
+		res = append(res, toOrderRes(&o))
 	}
 
 	w.Header().Set("Content-Type", "application/json")

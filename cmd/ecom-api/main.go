@@ -5,13 +5,26 @@ import (
 	"ecom-go-micro-service-backend/ecom-api/handler"
 	"ecom-go-micro-service-backend/ecom-api/server"
 	"ecom-go-micro-service-backend/ecom-api/storer"
+	"ecom-go-micro-service-backend/env"
+	"ecom-go-micro-service-backend/utils"
 	"fmt"
 	"log"
 )
 
 func main() {
+	err := utils.InitLogger()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = env.LoadEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db, err := db.NewDatabase()
 	if err != nil {
+		log.Fatal(err)
 		log.Fatal("database connection failed.......")
 	}
 	defer db.Close()
@@ -20,11 +33,6 @@ func main() {
 	srv := server.NewServer(st)
 	hdl := handler.NewHandler(srv)
 	handler.RegisterRoutes(hdl)
-
-	err = handler.Start(":8080")
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Println("Sucessfully running in 8080 ...........")
-	}
+	fmt.Println("Starting ECOM API server on port 8080...")
+	handler.Start(":8080")
 }
