@@ -5,6 +5,7 @@ import (
 	"ecom-go-micro-service-backend/ecom-api/handler"
 	"ecom-go-micro-service-backend/ecom-api/server"
 	"ecom-go-micro-service-backend/ecom-api/storer"
+	"ecom-go-micro-service-backend/env"
 	"fmt"
 	"log"
 
@@ -14,6 +15,11 @@ import (
 const minSecretKeySize = 32
 
 func main() {
+	err := env.LoadEnv()
+	if err != nil {
+		log.Fatalf("error loading .env file: %v", err)
+	}
+
 	var secretKey = envflag.String("SECRET_KEY", "01234567890123456789012345678901", "secret key for JWT signing")
 	if len(*secretKey) < minSecretKeySize {
 		log.Fatalf("SECRET_KEY must be at least %d characters", minSecretKeySize)
