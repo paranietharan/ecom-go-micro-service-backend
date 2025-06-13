@@ -245,7 +245,7 @@ func (s *Server) DeleteSession(ctx context.Context, sr *pb.SessionReq) (*pb.Sess
 	return &pb.SessionRes{}, nil
 }
 
-func (s *Server) ListNotificationEvents(ctx context.Context, lnr *pb.ListNotificationEventsReq) (*pb.ListNotificationEventsRes, error) {Add commentMore actions
+func (s *Server) ListNotificationEvents(ctx context.Context, lnr *pb.ListNotificationEventsReq) (*pb.ListNotificationEventsRes, error) {
 	notificationEvents, err := s.storer.ListNotificationEvents(ctx)
 	if err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-maxAttempts = 3
+	maxAttempts = 3
 )
 
 type MySQLStorer struct {
@@ -300,7 +300,7 @@ func (ms *MySQLStorer) DeleteSession(ctx context.Context, id string) error {
 	return nil
 }
 
-func insertNotificationState(ctx context.Context, tx *sqlx.Tx, es *NotificationState) (*NotificationState, error) {Add commentMore actions
+func insertNotificationState(ctx context.Context, tx *sqlx.Tx, es *NotificationState) (*NotificationState, error) {
 	res, err := tx.NamedExecContext(ctx, "INSERT INTO notification_states (order_id, state, message) VALUES (:order_id, :state, :message)", es)
 	if err != nil {
 		return nil, fmt.Errorf("error inserting notification state: %w", err)
