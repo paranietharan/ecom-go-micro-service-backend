@@ -1,6 +1,9 @@
 package handler
 
-import "ecom-go-micro-service-backend/ecom-grpc/pb"
+import (
+	"ecom-go-micro-service-backend/ecom-grpc/pb"
+	"fmt"
+)
 
 func toPBProductReq(p ProductReq) *pb.ProductReq {
 	return &pb.ProductReq{
@@ -50,6 +53,27 @@ func toPBOrderItems(oi []*OrderItem) []*pb.OrderItem {
 		})
 	}
 	return res
+}
+
+type OrderStatus string
+
+const (
+	Pending   OrderStatus = "pending"
+	Shipped   OrderStatus = "shipped"
+	Delivered OrderStatus = "delivered"
+)
+
+func toPBOrderStatus(s OrderStatus) (pb.OrderStatus, error) {
+	switch s {
+	case Pending:
+		return pb.OrderStatus_PENDING, nil
+	case Shipped:
+		return pb.OrderStatus_SHIPPED, nil
+	case Delivered:
+		return pb.OrderStatus_DELIVERED, nil
+	default:
+		return 0, fmt.Errorf("unknown order status: %s", s)
+	}
 }
 
 func toOrderRes(o *pb.OrderRes) OrderRes {
