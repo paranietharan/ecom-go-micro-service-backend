@@ -168,3 +168,16 @@ func patchUserReq(user *storer.User, u *pb.UserReq) {
 	}
 	user.UpdatedAt = toTimePtr(time.Now())
 }
+
+func toPBOrderStatus(os storer.OrderStatus) pb.OrderStatus {Add commentMore actions
+	switch os {
+	case storer.Pending:
+		return pb.OrderStatus_PENDING
+	case storer.Shipped:
+		return pb.OrderStatus_SHIPPED
+	case storer.Delivered:
+		return pb.OrderStatus_DELIVERED
+	default:
+		return 0
+	}
+}

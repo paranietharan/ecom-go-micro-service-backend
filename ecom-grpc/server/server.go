@@ -4,6 +4,7 @@ import (
 	"context"
 	"ecom-go-micro-service-backend/ecom-grpc/pb"
 	"ecom-go-micro-service-backend/ecom-grpc/storer"
+	"fmt"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -79,6 +80,18 @@ func (s *Server) DeleteProduct(ctx context.Context, p *pb.ProductReq) (*pb.Produ
 
 func (s *Server) CreateOrder(ctx context.Context, o *pb.OrderReq) (*pb.OrderRes, error) {
 	order, err := s.storer.CreateOrder(ctx, toStorerOrder(o))
+	if err != nil {
+		return nil, err
+	}
+
+	order.Status = storer.Pending
+
+	_, err = s.storer.EnqueueNotificationEvent(ctx, &storer.NotificationEvent{
+		UserEmail:   o.GetUserEmail(),
+		OrderStatus: order.Status,
+		OrderID:     order.ID,
+		Attempts:    0,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -230,4 +243,56 @@ func (s *Server) DeleteSession(ctx context.Context, sr *pb.SessionReq) (*pb.Sess
 	}
 
 	return &pb.SessionRes{}, nil
+}
+
+func (s *Server) ListNotificationEvents(ctx context.Context, lnr *pb.ListNotificationEventsReq) (*pb.ListNotificationEventsRes, error) {Add commentMore actions
+	notificationEvents, err := s.storer.ListNotificationEvents(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	lners := make([]*pb.NotificationEvent, 0, len(notificationEvents))
+	for _, ne := range notificationEvents {
+		lners = append(lners, &pb.NotificationEvent{
+			Id:          ne.ID,
+			UserEmail:   ne.UserEmail,
+			OrderStatus: toPBOrderStatus(ne.OrderStatus),
+			OrderId:     ne.OrderID,
+			StateId:     ne.StateID,
+			Attempts:    ne.Attempts,
+		})
+	}
+
+	return &pb.ListNotificationEventsRes{
+		Events: lners,
+	}, nil
+}
+
+func (s *Server) UpdateNotificationEvent(ctx context.Context, unr *pb.UpdateNotificationEventReq) (*pb.UpdateNotificationEventRes, error) {
+	var responseType storer.NotificationResponseType
+	switch unr.ResponseType {
+	case pb.NotificationResponseType_SUCCESS:
+		responseType = storer.NotificationSucess
+	case pb.NotificationResponseType_FAILURE:
+		responseType = storer.NotificationFailure
+	default:
+		return nil, fmt.Errorf("invalid response type %s", unr.ResponseType)
+	}
+
+	succeeded, err := s.storer.UpdateNotificationEvent(ctx,
+		&storer.NotificationEvent{
+			ID:      unr.GetId(),
+			StateID: unr.GetStateId(),
+		},
+		&storer.NotificationState{
+			Message: unr.GetMessage(),
+		},
+		responseType)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UpdateNotificationEventRes{
+		Succeeded: succeeded,
+	}, nil
 }
