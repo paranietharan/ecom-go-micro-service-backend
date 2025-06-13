@@ -25,14 +25,15 @@ const (
 )
 
 type Order struct {
-	ID            int64      `db:"id"`
-	PaymentMethod string     `db:"payment_method"`
-	TaxPrice      float32    `db:"tax_price"`
-	ShippingPrice float32    `db:"shipping_price"`
-	TotalPrice    float32    `db:"total_price"`
-	UserID        int64      `db:"user_id"`
-	CreatedAt     time.Time  `db:"created_at"`
-	UpdatedAt     *time.Time `db:"updated_at"`
+	ID            int64       `db:"id"`
+	PaymentMethod string      `db:"payment_method"`
+	TaxPrice      float32     `db:"tax_price"`
+	ShippingPrice float32     `db:"shipping_price"`
+	TotalPrice    float32     `db:"total_price"`
+	UserID        int64       `db:"user_id"`
+	CreatedAt     time.Time   `db:"created_at"`
+	Status        OrderStatus `db:"status"`
+	UpdatedAt     *time.Time  `db:"updated_at"`
 	Items         []OrderItem
 }
 
